@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,21 +7,60 @@ import {
   TouchableOpacity,
   TouchableHighlight,
   TouchableWithoutFeedback,
+  TextInput,
 } from "react-native";
 import { theme } from "./color";
 
 export default function App() {
+  const [working, setWorking] = useState(true);
+  const [text, setText] = useState("");
+  const [toDos, setTodos] = useState({});
+  const travel = () => setWorking(false);
+  const work = () => setWorking(true);
+  const onChangeText = (payload) => setText(payload);
+  const addToDo = () => {
+    if (text === "") {
+      return;
+    }
+    const newToDos = Object.assign({}, toDos, {
+      [Date.now()]: { text, work: working },
+    }); // in ReactJS never mutate the state itself, instead use modifier or setState
+    setTodos(newToDos);
+    setText("");
+  };
+  console.log(toDos);
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Text style={styles.btnText}>Work</Text>
+        <TouchableOpacity onPress={work}>
+          <Text
+            style={{ ...styles.btnText, color: working ? "white" : theme.grey }}
+          >
+            Work
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.btnText}>Travel</Text>
+        <TouchableOpacity onPress={travel}>
+          <Text
+            style={{
+              ...styles.btnText,
+              color: !working ? "white" : theme.grey,
+            }}
+          >
+            Travel
+          </Text>
         </TouchableOpacity>
       </View>
+
+      <TextInput
+        onSubmitEditing={addToDo}
+        onChangeText={onChangeText}
+        returnKeyType="done"
+        style={styles.input}
+        value={text}
+        placeholder={working ? "Add a To-Do" : "Where do you want to go ?"}
+        placeholderTextColor="grey"
+      />
     </View>
   );
 }
@@ -38,8 +77,15 @@ const styles = StyleSheet.create({
     marginTop: 100,
   },
   btnText: {
-    color: "white",
     fontSize: 44,
     fontWeight: "600",
+  },
+  input: {
+    backgroundColor: "white",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    marginTop: 20,
+    fontSize: 18,
   },
 });
